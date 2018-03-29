@@ -62,10 +62,10 @@ z = zeros(n+1,N);
 u = zeros(n+1,N);
 
 
-if ~QUIET
-    fprintf('%3s\t%10s\t%10s\t%10s\t%10s\t%10s\n', 'iter', '# bfgs', ...
-      'r norm', 'eps pri', 's norm', 'eps dual', 'objective');
-end
+% if ~QUIET
+%     fprintf('%3s\t%10s\t%10s\t%10s\t%10s\t%10s\n', 'iter', '# bfgs', ...
+%       'r norm', 'eps pri', 's norm', 'eps dual', 'objective');
+% end
 
 p = size(z,1);
 
@@ -104,11 +104,11 @@ for k = 1:MAX_ITER
     history.eps_pri(k) = sqrt(p*N)*ABSTOL + RELTOL*max(norm(x,'fro'), norm(z,'fro'));
     history.eps_dual(k)= sqrt(p*N)*ABSTOL + RELTOL*norm(rho*u,'fro');
 
-    if ~QUIET
-        fprintf('%3d\t%10d\t%10.4f\t%10.4f\t%10.4f\t%10.4f\t%10.2f\n', k, sum(bfgs_iters), ...
-            history.r_norm(k), history.eps_pri(k), ...
-            history.s_norm(k), history.eps_dual(k), history.objval(k));
-    end
+%     if ~QUIET
+%         fprintf('%3d\t%10d\t%10.4f\t%10.4f\t%10.4f\t%10.4f\t%10.2f\n', k, sum(bfgs_iters), ...
+%             history.r_norm(k), history.eps_pri(k), ...
+%             history.s_norm(k), history.eps_dual(k), history.objval(k));
+%     end
 
 
     if history.r_norm(k) < history.eps_pri(k) && ...

@@ -105,7 +105,9 @@ function [Opt,Mse]=CV_distri_Lhalf_logistic(X,Y,Lambda,J,beta_path,beta_int,beta
             y_test=0;
         end
     end
-    [d,Opt]=min(sum(Mse,1));
+    min_Mse_index=find(sum(Mse,1)==min(sum(Mse,1)));
+    Opt=max(min_Mse_index);
+    %[d,Opt]=min(sum(Mse,1));
     Mse=sum(Mse,1);
     
 end

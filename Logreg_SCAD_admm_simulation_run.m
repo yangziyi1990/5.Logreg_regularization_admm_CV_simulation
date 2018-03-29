@@ -7,20 +7,20 @@ clear all;
 % rand('seed', 0);
 % randn('seed', 0);
 
-n = 200;   % the number of samples;
-p = 100;  % the number of features
+n = 500;   % the number of samples;
+p = 2000;  % the number of features
 
 beta_int=zeros(1,p)';
-beta_int(1)=5;
-beta_int(2)=-5;
-beta_int(3)=5;
-beta_int(4)=-5;
-beta_int(5)=5;
-beta_int(6)=-5;
-beta_int(7)=5;
-beta_int(8)=-5;
-beta_int(9)=5;
-beta_int(10)=-5;
+beta_int(1)=1;
+beta_int(2)=-1;
+beta_int(3)=1;
+beta_int(4)=-1;
+beta_int(5)=1;
+beta_int(6)=-1;
+beta_int(7)=1;
+beta_int(8)=-1;
+beta_int(9)=1;
+beta_int(10)=-1;
 % beta_int = sprandn(p, 1, 0.01);       % N(0,1), 10% sparse
 beta_zero = randn(1);                   % random intercept
 beta_true = [beta_zero; beta_int];
@@ -46,11 +46,12 @@ ratio = sum(Y == 1)/(n);
 %% Setting lambda && Cross validation
 lambda_max = 1/n * norm((1-ratio)*sum(A(Y==1,:),1) + ratio*sum(A(Y==-1,:),1), 'inf');
 lambda_min=lambda_max * 0.1;
-m = 2;
+m = 10;
 for i=1:m
     lambda(i) = lambda_max*(lambda_min/lambda_max)^(i/m);
     [beta history] = SCAD_logreg(A, Y, lambda(i), 1.0, 1.0);
     beta_path(:,i)=beta; 
+    i
 end
 
 [opt,Mse]=CV_SCAD_logistic(A,Y,lambda,beta_path,beta_int,beta_zero);
@@ -62,7 +63,7 @@ beta=beta_path(:,opt);
 
 %% Solve problem
 % generate testing data %
-n_test=10;
+n_test=2-0;
 X_test = randn(n_test, p); 
 l_test = X_test * beta_int + beta_zero;         % no noise
 prob_test=exp(l_test)./(1 + exp(l_test));
@@ -85,7 +86,13 @@ for i=1:n_test
     end
 end
 error_test=abs(Y_validation-Y_test);
-error_number=find(nonzeros(error_test));
+error_number=length(find(nonzeros(error_test)));
+
+%% Performance
+[accurancy,sensitivity,specificity]=performance(Y_test,Y_validation);
+fprintf('The accurancy of lasso: %f\n' ,accurancy);
+fprintf('The sensitivity of lasso: %f\n' ,sensitivity);
+fprintf('The specificity of lasso: %f\n' ,specificity);
 
 %% Reporting
 % K = length(history.objval);

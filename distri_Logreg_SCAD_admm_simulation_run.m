@@ -6,21 +6,21 @@ clear all;
 % rand('seed', 0);
 % randn('seed', 0);
 
-n = 50;  % the number of samples;
-p = 200;  % the number of features
+n = 100;  % the number of samples;
+p = 2000;  % the number of features
 N = 5;  % the number of agent;
 
 beta_int=zeros(1,p)';
-beta_int(1)=5;
-beta_int(2)=-5;
-beta_int(3)=5;
-beta_int(4)=-5;
-beta_int(5)=5;
-beta_int(6)=-5;
-beta_int(7)=5;
-beta_int(8)=-5;
-beta_int(9)=5;
-beta_int(10)=-5;
+beta_int(1)=1;
+beta_int(2)=-1;
+beta_int(3)=1;
+beta_int(4)=-1;
+beta_int(5)=1;
+beta_int(6)=-1;
+beta_int(7)=1;
+beta_int(8)=-1;
+beta_int(9)=1;
+beta_int(10)=-1;
 beta_zero = randn(1);                   % random intercept
 beta_true = [beta_zero; beta_int];
 
@@ -40,6 +40,7 @@ for i=1:m
     lambda(i) = lambda_max*(lambda_min/lambda_max)^(i/m);
     [beta history] = distr_SCAD_logreg(A0, Y0, lambda(i), N, 1.0, 1.0);   % (X, Y, lambda, N, rho, alpha)
     beta_path(:,i)=beta; 
+    i
 end
 
 [opt,Mse]=CV_distri_SCAD_logistic(A0,Y0,lambda,N,beta_path,beta_int,beta_zero);
@@ -51,7 +52,7 @@ beta=beta_path(:,opt);
 
 %% Solve problem
 % generate testing data %
-n_test=50;
+n_test=200;
 n_test_number=n_test*N;
 X_test = randn(n_test_number, p); 
 l_test = X_test * beta_int + beta_zero;         % no noise
@@ -75,7 +76,13 @@ for i=1:n_test_number
     end
 end
 error_test=abs(Y_validation-Y_test);
-error_number=find(nonzeros(error_test));
+error_number=length(find(nonzeros(error_test)));
+
+%% Performance
+[accurancy,sensitivity,specificity]=performance(Y_test,Y_validation);
+fprintf('The accurancy of lasso: %f\n' ,accurancy);
+fprintf('The sensitivity of lasso: %f\n' ,sensitivity);
+fprintf('The specificity of lasso: %f\n' ,specificity);
 
 %% Reporting
 

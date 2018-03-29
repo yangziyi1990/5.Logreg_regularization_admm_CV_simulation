@@ -6,22 +6,22 @@ clear all;
 % rand('seed', 0);
 % randn('seed', 0);
 
-n = 50;  % the number of samples;
-p = 100;  % the number of features
+n = 100;  % the number of samples;
+p = 2000;  % the number of features
 N = 5;  % the number of agent;
 
 % beta_int = sprandn(p, 1, 0.01);       % N(0,1), 10% sparse
 beta_int=zeros(1,p)';
-beta_int(1)=5;
-beta_int(2)=-5;
-beta_int(3)=5;
-beta_int(4)=-5;
-beta_int(5)=5;
-beta_int(6)=-5;
-beta_int(7)=5;
-beta_int(8)=-5;
-beta_int(9)=5;
-beta_int(10)=-5;
+beta_int(1)=1;
+beta_int(2)=-1;
+beta_int(3)=1;
+beta_int(4)=-1;
+beta_int(5)=1;
+beta_int(6)=-1;
+beta_int(7)=1;
+beta_int(8)=-1;
+beta_int(9)=1;
+beta_int(10)=-1;
 beta_zero = randn(1);                   % random intercept
 beta_true = [beta_zero; beta_int];
 
@@ -42,6 +42,7 @@ for i=1:m
     lambda(i) = lambda_max*(lambda_min/lambda_max)^(i/m);
     [beta history] = distr_l1_logreg(A0, Y0, lambda(i), N, 1.0, 1.0);   % (X, Y, lambda, N, rho, alpha)
     beta_path(:,i)=beta; 
+    i
 end
 
 [opt,Mse]=CV_distri_Lasso_logistic(A0, Y0, lambda, N, beta_path, beta_int, beta_zero);
@@ -53,12 +54,12 @@ beta=beta_path(:,opt);
 
 %% Solve problem
 % generate testing data %
-n_test=50;
+n_test=200;
 % X_test = randn(n_test*N, p); 
-X_test = sprandn(n*N, p, 0.1); 
+X_test = sprandn(n_test, p, 0.1); 
 l_test = X_test * beta_int + beta_zero;         % no noise
 prob_test=exp(l_test)./(1 + exp(l_test));
-for i=1:n_test*N
+for i=1:n_test
     if prob_test(i)>0.5
         Y_test(i,1)=1;
     else
@@ -69,7 +70,7 @@ end
 % the performance of testing data %
 y_validation=X_test * beta(2:end) + beta(1);
 prob_validation=exp(y_validation)./(1 + exp(y_validation));
-for i=1:n_test*N
+for i=1:n_test
     if prob_validation(i)>0.5
         Y_validation(i,1)=1;
     else
@@ -77,17 +78,16 @@ for i=1:n_test*N
     end
 end
 error_test=abs(Y_validation-Y_test);
-error_number=find(nonzeros(error_test));
-% [beta history] = distr_l1_logreg(X_test, Y_test, lambda, N, 1.0, 1.0);
-% 
-% index_nonzero_beta=find(beta~=0);
-% number_nonzero_beta=length(nonzeros(beta));
-% index_nonzero_betatrue=find(beta_true~=0);
-% index_right_beta=intersect(index_nonzero_beta,index_nonzero_betatrue);
-% number_right_beta=length(index_right_beta);
-% 
-% %% Reporting
-% 
+error_number=length(find(nonzeros(error_test)));
+
+%% Performance
+[accurancy,sensitivity,specificity]=performance(Y_test,Y_validation);
+fprintf('The accurancy of lasso: %f\n' ,accurancy);
+fprintf('The sensitivity of lasso: %f\n' ,sensitivity);
+fprintf('The specificity of lasso: %f\n' ,specificity);
+
+%% Reporting
+
 % K = length(history.objval);
 % 
 % h = figure;

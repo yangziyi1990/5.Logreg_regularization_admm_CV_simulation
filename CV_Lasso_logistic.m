@@ -49,6 +49,8 @@ for j=1:length(Lambda)
        y_test=0;
     end
 end
-[d,opt_s]=min(sum(Mse,1));
+min_Mse_index=find(sum(Mse,1)==min(sum(Mse,1)));
+Opt=max(min_Mse_index);
+% [d,opt_s]=min(sum(Mse,1));
 Mse=sum(Mse,1);
 end
