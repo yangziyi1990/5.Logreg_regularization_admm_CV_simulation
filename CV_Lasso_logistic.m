@@ -1,4 +1,4 @@
-function [ opt_s,Mse ] = CV_Lasso_logistic(X,y,Lambda,beta_path, beta_int, beta_zero)
+function [ Opt,Mse ] = CV_Lasso_logistic(X,y,Lambda,beta_path, beta_int, beta_zero)
 
 %%%%%%%%%%%%%%     K cross validation    %%%%%%%%%%%%%%%%
 k=10;            %%% K-fold%%%
