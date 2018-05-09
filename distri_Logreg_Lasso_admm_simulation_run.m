@@ -10,7 +10,6 @@ n = 100;  % the number of samples;
 p = 2000;  % the number of features
 N = 5;  % the number of agent;
 
-% beta_int = sprandn(p, 1, 0.01);       % N(0,1), 10% sparse
 beta_int=zeros(1,p)';
 beta_int(1)=1;
 beta_int(2)=-1;
@@ -27,6 +26,8 @@ beta_true = [beta_zero; beta_int];
 
 X0 = sprandn(n*N, p, 0.1);           % data / observations
 Y0 = sign(X0*beta_int + beta_zero);
+Y0_origin=Y0;
+
 % noise is function of problem size use 0.1 for large problem
 % Y0 = sign(X0*beta_int + beta_zero + sqrt(0.1)*randn(n*N, 1)); % labels with noise
 
@@ -55,8 +56,7 @@ beta=beta_path(:,opt);
 %% Solve problem
 % generate testing data %
 n_test=200;
-% X_test = randn(n_test*N, p); 
-X_test = sprandn(n_test, p, 0.1); 
+X_test = randn(n_test, p); 
 l_test = X_test * beta_int + beta_zero;         % no noise
 prob_test=exp(l_test)./(1 + exp(l_test));
 for i=1:n_test
@@ -78,29 +78,39 @@ for i=1:n_test
     end
 end
 error_test=abs(Y_validation-Y_test);
-error_number=length(find(nonzeros(error_test)));
+error_number=length(find(nonzeros(error_test)))
+beta_non_zero=length(nonzeros(beta))
 
 %% Performance
 [accurancy,sensitivity,specificity]=performance(Y_test,Y_validation);
-fprintf('The accurancy of lasso: %f\n' ,accurancy);
-fprintf('The sensitivity of lasso: %f\n' ,sensitivity);
-fprintf('The specificity of lasso: %f\n' ,specificity);
+fprintf('The accurancy of testing data (Lasso): %f\n' ,accurancy);
+fprintf('The sensitivity of testing data (Lasso): %f\n' ,sensitivity);
+fprintf('The specificity of testing data (Lasso): %f\n' ,specificity);
 
-%% Reporting
 
-% K = length(history.objval);
-% 
-% h = figure;
-% plot(1:K, history.objval, 'k', 'MarkerSize', 10, 'LineWidth', 2);
-% ylabel('f(x^k) + g(z^k)'); xlabel('iter (k)');
-% 
-% g = figure;
-% subplot(2,1,1);
-% semilogy(1:K, max(1e-8, history.r_norm), 'k', ...
-%     1:K, history.eps_pri, 'k--',  'LineWidth', 2);
-% ylabel('||r||_2');
-% 
-% subplot(2,1,2);
-% semilogy(1:K, max(1e-8, history.s_norm), 'k', ...
-%     1:K, history.eps_dual, 'k--', 'LineWidth', 2);
-% ylabel('||s||_2'); xlabel('iter (k)');
+%% performance for training data
+l1 = X0 * beta(2:end) + beta(1);
+prob1=exp(l1)./(1 + exp(l1)); 
+train_size=n * N;
+for i=1:train_size
+    if prob1(i)>0.5
+        train_y(i)=1;
+    else
+        train_y(i)=0;
+    end
+end
+Y0_origin(find(Y0_origin==-1))=0;
+
+error_train=train_y'-Y0_origin;
+error_number_train=length(nonzeros(error_train))
+
+[accurancy_train,sensitivity_train,specificity_train]=performance(Y0_origin,train_y');
+fprintf('The accurancy of training data(Lasso): %f\n' ,accurancy_train);
+fprintf('The sensitivity of training data (Lasso): %f\n' ,sensitivity_train);
+fprintf('The specificity of training data (Lasso): %f\n' ,specificity_train);
+
+%% performance for beta
+[accurancy_beta,sensitivity_beta,specificity_beta]=performance_beta(beta_true,beta);
+fprintf('The accurancy of beta (Lasso): %f\n' ,accurancy_beta);
+fprintf('The sensitivity of beta (Lasso): %f\n' ,sensitivity_beta);
+fprintf('The specificity of beta (Lasso): %f\n' ,specificity_beta);
