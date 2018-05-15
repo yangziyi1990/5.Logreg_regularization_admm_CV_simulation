@@ -1,4 +1,4 @@
-function [Opt,Mse]=CV_distri_SCAD_logistic(X,Y,Lambda,J,beta_path,beta_int,beta_zero)
+function [Opt,Mse]=CV_distri_SCAD_logistic(X,Y,Lambda,J,beta_int,beta_zero)
 
     [n,p]=size(X);
     K=5;  % 5 k-folds;
@@ -47,6 +47,9 @@ function [Opt,Mse]=CV_distri_SCAD_logistic(X,Y,Lambda,J,beta_path,beta_int,beta_
      %% Cross validation
     for l=1:length(Lambda)
         lambda=Lambda(l);
+        beta_i=zeros(1,p)';
+        beta_z = randn(1);        
+        beta_ini = [beta_z; beta_i];
         for i=1:K
             Xtrain=cell(J,1);   %每个cell是第j个agent的training data
             Ytrain=cell(J,1);
@@ -101,12 +104,11 @@ function [Opt,Mse]=CV_distri_SCAD_logistic(X,Y,Lambda,J,beta_path,beta_int,beta_
             end
             error=abs(Y_validation-Y_test);
             Mse(i,l)=sum(error); 
-            y_test=0;
+            Y_validation=0;
         end
     end
     min_Mse_index=find(sum(Mse,1)==min(sum(Mse,1)));
     Opt=max(min_Mse_index);
-    %[d,Opt]=min(sum(Mse,1));
     Mse=sum(Mse,1);
     
 end

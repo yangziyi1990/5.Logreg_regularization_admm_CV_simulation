@@ -45,7 +45,7 @@ for i=1:m
     i
 end
 
-[opt,Mse]=CV_distri_SCAD_logistic(A0,Y0,lambda,N,beta_path,beta_int,beta_zero);
+[opt,Mse]=CV_distri_SCAD_logistic(A0,Y0,lambda,N,beta_int,beta_zero);
 beta=beta_path(:,opt);
 
 %% without Cross validation
